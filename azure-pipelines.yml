@@ -10,7 +10,7 @@
 # function_app_name = name of function app to deploy to
 
 trigger:
-- master
+- main
 
 variables:
   # Agent VM image name
