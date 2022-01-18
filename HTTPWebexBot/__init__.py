@@ -27,7 +27,45 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     try:
 
+        def get_email(data):
+            """
+            Retrieve the email address for a user
+
+            Args:
+                data (dict): JSON message payload as a Python dict
+
+            Returns:
+                tuple: Tuple containing the person email and Webex API object if it needed to be created
+            """
+
+            # try to get the person's email from the plain message
+            try:
+                # return None for the API object since we didn't need to create it
+                return data['data']['personEmail'], None
+            except KeyError:
+                # KeyError if this is an attachment action, etc
+                pass
+
+            # create the teams API object to be able to query the person ID
+            teams_api = WebexTeams(environ['WEBEX_TEAMS_ACCESS_TOKEN'])
+
+            # query for the person ID
+            person = teams_api.api.people.get(data['data']['personId'])
+
+            # there should only be 1 email address so return the first one in the list
+            # also return the API object so we don't have to create it 2 times
+            return person.emails[0], teams_api
+
         def check_domain(email):
+            """
+            Check the email/domain to determine if it's allowed
+
+            Args:
+                email (str): Email address to check
+
+            Returns:
+                bool: True if the email/domain is allowed, False if not
+            """
 
             # if the message is one a bot posted, ignore it
             if '@webex.bot' in email:
@@ -57,18 +95,23 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             # then this domain is not allowed
             return False
 
+        # parse the JSON payload
         data = req.get_json()
 
-        # logger.info(f'Data: {data}')
-        person_email = data['data']['personEmail']
+        # get the email address from the message
+        person_email, teams_api = get_email(data)
 
+        # check the email
         if not check_domain(person_email):
             logger.warning(f'User with email {person_email} not allowed to chat with bot')
             return func.HttpResponse(f'User with email {person_email} not allowed to chat with bot', mimetype='text/html')
 
-        if data['resource'] == 'messages' and data['event'] == 'created':
-
+        # if we didn't create the API object when getting the email address, create it now
+        if not teams_api:
             teams_api = WebexTeams(environ['WEBEX_TEAMS_ACCESS_TOKEN'])
+
+        # if this is a normal text message
+        if data['resource'] == 'messages' and data['event'] == 'created':
 
             # send the default card
             teams_api.send_default_card(person_email=person_email)
@@ -77,22 +120,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         elif data['resource'] == 'attachmentActions' and data['event'] == 'created':
 
-            teams_api = WebexTeams(environ['WEBEX_TEAMS_ACCESS_TOKEN'])
-
             # get the message contents
             action = teams_api.api.attachment_actions.get(data['data']['id'])
 
             if action.type != 'submit':
                 logger.warning('Action not submit')
                 return func.HttpResponse('Action not submit', mimetype='text/html')
-
-            # get the person details
-            person = teams_api.api.people.get(action.personId)
-            person_email = person.emails[0]
-
-            if '@cisco.com' not in person_email:
-                logger.warning(f'Message was not from a Cisco person: {person_email}')
-                return func.HttpResponse(f'Message was not from a Cisco person: {person_email}', mimetype='text/html')
 
             # create the dnac api object
             dnac_api = DNAC()
