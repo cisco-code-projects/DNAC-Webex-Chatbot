@@ -493,3 +493,87 @@ class WebexTeams():
         }
 
         self.send_message('Landing Card', person_email=person_email, room_id=room_id, attachments=[card])
+
+    def send_user_details_card(self, details={}, person_email=None, room_id=None):
+
+        body = [
+            {
+                'type': 'TextBlock',
+                'text': f'User Devices for "{person_email}"',
+                'size': 'Large',
+                'weight': 'Bolder',
+                'wrap': True
+            }
+        ]
+
+        i = 0
+        for s in ['connected', 'connecting', 'disconnected']:
+
+            for d in details:
+                ud = d['userDetails']
+                if ud['connectionStatus'].lower() == s:
+
+                    hs = {h['healthType'].lower(): h['score'] for h in ud['healthScore']}
+
+                    i += 1
+                    body.append(
+                        {
+                            'type': 'TextBlock',
+                            'text': f"------\n[**Device #{i:,.0f}** -- Open Helpdesk Ticket](http://myhelpdesklink.local/open-dnac-ticket?user={person_email}&device_id={ud['id']})",
+                            'size': 'Medium',
+                            'weight': 'Bolder'
+                        }
+                    )
+
+                    body.append(
+                        {
+                            'type': 'FactSet',
+                            'facts': [
+                                {
+                                    'title': 'Hostname:',
+                                    'value': ud['hostName']
+                                },
+                                {
+                                    'title': 'Conn Type:',
+                                    'value': ud['hostType'].lower()
+                                },
+                                {
+                                    'title': 'Status:',
+                                    'value': ud['connectionStatus'].lower()
+                                },
+                                {
+                                    'title': 'OS:',
+                                    'value': ud['hostOs']
+                                },
+                                {
+                                    'title': 'Overall Health:',
+                                    'value': str(hs['overall'])
+                                },
+                                {
+                                    'title': 'Onboarding Health:',
+                                    'value': str(hs['onboarded'])
+                                },
+                                {
+                                    'title': 'Connected Health:',
+                                    'value': str(hs['connected'])
+                                },
+                                {
+                                    'title': 'Issues:',
+                                    'value': str(ud['issueCount'])
+                                }
+                            ]
+                        }
+                    )
+
+        card = {
+            'contentType': 'application/vnd.microsoft.card.adaptive',
+            'content': {
+                '$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
+                'type': 'AdaptiveCard',
+                'version': '1.2',
+                'body': body,
+                'actions': []
+            }
+        }
+
+        self.send_message('User Details', person_email=person_email, room_id=room_id, attachments=[card])

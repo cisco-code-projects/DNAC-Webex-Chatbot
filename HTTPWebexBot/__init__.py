@@ -203,6 +203,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 username = person_email.split('@')[0]
                 user_enrich = dnac_api.get_user_enrichment_for_card(username=username)
 
+                teams_api.send_user_details_card(details=user_enrich, person_email=person_email)
+
                 return func.HttpResponse('Done', mimetype='text/html')
 
             return func.HttpResponse('Done', mimetype='text/html')
