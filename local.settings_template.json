@@ -9,6 +9,7 @@
     "DNA_CENTER_BASE_URL": "https://ip_address:443",
     "DNA_CENTER_USERNAME": "admin_username",
     "DNA_CENTER_PASSWORD": "admin_password",
-    "DNA_CENTER_VERIFY": "False"
+    "DNA_CENTER_VERIFY": "False",
+    "ADMIN_OR_USER_MODE": "admin"
   }
 }

@@ -98,6 +98,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         # parse the JSON payload
         data = req.get_json()
 
+        admin_mode = environ['ADMIN_OR_USER_MODE'].lower() == 'admin'
+        # user_mode = environ['ADMIN_OR_USER_MODE'].lower() == 'user'
+
         # get the email address from the message
         person_email, teams_api = get_email(data)
 
@@ -114,7 +117,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if data['resource'] == 'messages' and data['event'] == 'created':
 
             # send the default card
-            teams_api.send_default_card(person_email=person_email)
+            if admin_mode:
+                teams_api.send_default_admin_card(person_email=person_email)
+            else:
+                teams_api.send_default_user_card(person_email=person_email)
 
             return func.HttpResponse('Done', mimetype='text/html')
 
@@ -131,7 +137,14 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             dnac_api = DNAC()
 
             # check for the actions
-            if action.inputs.get('next_action') == 'list_devices':
+            if action.inputs.get('next_action') == 'go_home':
+
+                # send the default card
+                teams_api.send_default_admin_card(person_email=person_email)
+
+                return func.HttpResponse('Done', mimetype='text/html')
+
+            elif action.inputs.get('next_action') == 'list_devices':
 
                 device_list = dnac_api.get_devices_for_card()
 
@@ -182,6 +195,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 teams_api.send_issue_list_card(
                     text=f'{priority.upper()} issues:', issue_list=issues, person_email=person_email)
+
+                return func.HttpResponse('Done', mimetype='text/html')
+
+            elif action.inputs.get('next_action') == 'check_my_user_health':
+
+                username = person_email.split('@')[0]
+                user_enrich = dnac_api.get_user_enrichment_for_card(username=username)
 
                 return func.HttpResponse('Done', mimetype='text/html')
 

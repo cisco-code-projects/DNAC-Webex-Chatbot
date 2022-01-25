@@ -75,7 +75,7 @@ class WebexTeams():
             event='created'
         )
 
-    def send_default_card(self, text=None, person_email=None, room_id=None):
+    def send_default_admin_card(self, text=None, person_email=None, room_id=None):
 
         if text is None:
             text = 'What do you want to do?'
@@ -103,28 +103,6 @@ class WebexTeams():
                             'next_action': 'list_devices'
                         }
                     },
-                    # {
-                    #     'type': 'Action.ShowCard',
-                    #     'title': 'User Health',
-                    #     'card': {
-                    #         'type': 'AdaptiveCard',
-                    #         'body': [
-                    #             {
-                    #                 'type': 'Input.Text',
-                    #                 'id': 'username_input',
-                    #                 'placeholder': 'Enter username',
-                    #                 'inlineAction': {
-                    #                     'type': 'Action.Submit',
-                    #                     'title': 'Enter',
-                    #                     'data': {
-                    #                         'next_action': 'user_enrichment'
-                    #                     }
-                    #                 }
-                    #             }
-                    #         ],
-                    #         'actions': []
-                    #     }
-                    # }
                     {
                         'type': 'Action.Submit',
                         'title': 'P1 Issues',
@@ -188,6 +166,13 @@ class WebexTeams():
                         'title': 'Get Config',
                         'data': {
                             'next_action': 'get_device_config'
+                        }
+                    },
+                    {
+                        'type': 'Action.Submit',
+                        'title': 'Home',
+                        'data': {
+                            'next_action': 'go_home'
                         }
                     }
                 ]
@@ -302,7 +287,15 @@ class WebexTeams():
                             ],
                             'actions': []
                         }
+                    },
+                    {
+                        'type': 'Action.Submit',
+                        'title': 'Home',
+                        'data': {
+                            'next_action': 'go_home'
+                        }
                     }
+
                 ]
             }
         }
@@ -339,7 +332,15 @@ class WebexTeams():
                         }
                     }
                 ],
-                'actions': []
+                'actions': [
+                    {
+                        'type': 'Action.Submit',
+                        'title': 'Home',
+                        'data': {
+                            'next_action': 'go_home'
+                        }
+                    }
+                ]
             }
         }
 
@@ -422,8 +423,73 @@ class WebexTeams():
                 'type': 'AdaptiveCard',
                 'version': '1.2',
                 'body': body,
-                'actions': []
+                'actions': [
+                    {
+                        'type': 'Action.Submit',
+                        'title': 'Home',
+                        'data': {
+                            'next_action': 'go_home'
+                        }
+                    }
+
+                ]
             }
         }
 
         self.send_message('Issues Card', person_email=person_email, room_id=room_id, attachments=[card])
+
+    def send_default_user_card(self, text=None, person_email=None, room_id=None):
+
+        if text is None:
+            text = 'What do you want to do?'
+
+        card = {
+            'contentType': 'application/vnd.microsoft.card.adaptive',
+            'content': {
+                '$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
+                'type': 'AdaptiveCard',
+                'version': '1.2',
+                'body': [
+                    {
+                        'type': 'TextBlock',
+                        'text': text,
+                        'size': 'Medium',
+                        'weight': 'Bolder',
+                        'wrap': True
+                    }
+                ],
+                'actions': [
+                    {
+                        'type': 'Action.Submit',
+                        'title': 'Check My Network Health',
+                        'data': {
+                            'next_action': 'check_my_user_health'
+                        }
+                    },
+                    {
+                        'type': 'Action.ShowCard',
+                        'title': "Check Another User's Network Health",
+                        'card': {
+                            'type': 'AdaptiveCard',
+                            'body': [
+                                {
+                                    'type': 'Input.Text',
+                                    'id': 'username_input',
+                                    'placeholder': 'Enter username',
+                                    'inlineAction': {
+                                        'type': 'Action.Submit',
+                                        'title': 'Enter',
+                                        'data': {
+                                            'next_action': 'user_enrichment'
+                                        }
+                                    }
+                                }
+                            ],
+                            'actions': []
+                        }
+                    }
+                ]
+            }
+        }
+
+        self.send_message('Landing Card', person_email=person_email, room_id=room_id, attachments=[card])
