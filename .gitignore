@@ -134,5 +134,6 @@ local.settings.json
 .vscode
 
 zTest.py
+zLocalSettings
 
 .flake8
