@@ -519,7 +519,7 @@ class WebexTeams():
                     body.append(
                         {
                             'type': 'TextBlock',
-                            'text': f"------\n[**Device #{i:,.0f}** -- Open Helpdesk Ticket](http://myhelpdesklink.local/open-dnac-ticket?user={person_email}&device_id={ud['id']})",
+                            'text': f"------\n[**Device #{i:,.0f}** -- Open Helpdesk Ticket](http://myhelpdesklink.local/open-dnac-ticket?user={person_email}&device_id={ud['id']})",  # noqa: E501
                             'size': 'Medium',
                             'weight': 'Bolder'
                         }
