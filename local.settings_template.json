@@ -4,7 +4,7 @@
     "logging_level": "INFO",
     "other_modules_logging_level": "WARNING",
     "WEBEX_TEAMS_ACCESS_TOKEN": "ACCESS-TOKEN",
-    "WEBEX_TEAMS_WEBHOOK_URL": "Azure URL or Flask/Ngrok endpoint",
+    "WEBEX_TEAMS_WEBHOOK_URL": "Azure URL or Flask/Ngrok endpoint (this should have the /webexbot route at the end)",
     "WEBEX_ALLOWED_DOMAINS": "yourdomain.com (comma separated list of domains to allow, leave empty/blank to allow all)",
     "DNA_CENTER_BASE_URL": "https://ip_address:443",
     "DNA_CENTER_USERNAME": "admin_username",
