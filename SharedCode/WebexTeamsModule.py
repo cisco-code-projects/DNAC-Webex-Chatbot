@@ -98,18 +98,18 @@ class WebexTeams():
                 'actions': [
                     {
                         'type': 'Action.Submit',
-                        'title': 'List Devices',
-                        'data': {
-                            'next_action': 'list_devices'
-                        }
-                    },
-                    {
-                        'type': 'Action.Submit',
                         'title': 'P1 Issues',
                         'data': {
                             'next_action': 'get_issues',
                             'max_issues': 10,
                             'issue_priority': 'p1'
+                        }
+                    },
+                    {
+                        'type': 'Action.Submit',
+                        'title': 'List Devices',
+                        'data': {
+                            'next_action': 'list_devices'
                         }
                     }
                 ]
